@@ -1,0 +1,6 @@
+{
+  "name": "Cadence",
+  "description": "Offline-first personal life tracker with goals, polymorphic habits, time-blocked tasks, Doze-safe focus timers, daily reflections, Glance home widget, and delta cloud sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

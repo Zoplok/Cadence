@@ -1,0 +1,167 @@
+{
+  "entities": {
+    "Goal": {
+      "title": "Goal",
+      "description": "Macro-layer user goal connecting long-term targets to habits, milestones, and tasks.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID." },
+        "title": { "type": "string", "description": "Goal title (1-120 chars)." },
+        "category": { "type": "string", "description": "Goal category such as Health, Career, Finance, Learning, Personal." },
+        "targetDate": { "type": "string", "description": "Optional target date in YYYY-MM-DD format." },
+        "status": { "type": "string", "enum": ["active", "completed", "archived"], "description": "Lifecycle status." },
+        "updatedAtMs": { "type": "integer", "description": "Client epoch milliseconds used for delta sync and LWW conflict resolution." },
+        "deletedAtMs": { "type": "integer", "description": "Optional soft-delete epoch milliseconds." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server creation timestamp via FieldValue.serverTimestamp()." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server update timestamp via FieldValue.serverTimestamp()." }
+      },
+      "required": ["userId", "title", "category", "status", "updatedAtMs", "createdAt", "updatedAt"]
+    },
+    "Milestone": {
+      "title": "Milestone",
+      "description": "Quantifiable or boolean milestone belonging to a Goal.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "goalId": { "type": "string", "description": "Parent Goal ID." },
+        "title": { "type": "string" },
+        "targetValue": { "type": "number", "description": "Optional numeric target." },
+        "currentValue": { "type": "number" },
+        "completed": { "type": "boolean" },
+        "updatedAtMs": { "type": "integer" },
+        "deletedAtMs": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "goalId", "title", "currentValue", "completed", "updatedAtMs", "createdAt", "updatedAt"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "Polymorphic daily/weekly habit supporting boolean, numeric, or duration metrics.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "goalId": { "type": "string" },
+        "title": { "type": "string" },
+        "iconName": { "type": "string" },
+        "colorHex": { "type": "string" },
+        "metricType": { "type": "string", "enum": ["boolean", "numeric", "duration"] },
+        "targetValue": { "type": "number" },
+        "unit": { "type": "string" },
+        "frequencyRule": { "type": "object", "description": "Map with type (daily/weekly) and days (list of weekday ints 1..7)." },
+        "updatedAtMs": { "type": "integer" },
+        "deletedAtMs": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "iconName", "colorHex", "metricType", "targetValue", "unit", "frequencyRule", "updatedAtMs", "createdAt", "updatedAt"]
+    },
+    "HabitLog": {
+      "title": "HabitLog",
+      "description": "Daily habit check-in record keyed deterministically by habitId_logDate.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "habitId": { "type": "string" },
+        "logDate": { "type": "string", "description": "YYYY-MM-DD local date." },
+        "loggedValue": { "type": "number" },
+        "note": { "type": "string" },
+        "updatedAtMs": { "type": "integer" },
+        "deletedAtMs": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "habitId", "logDate", "loggedValue", "updatedAtMs", "createdAt", "updatedAt"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Execution-layer task with optional goal link, subtask hierarchy, and time-blocking schedule.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "goalId": { "type": "string" },
+        "parentTaskId": { "type": "string" },
+        "title": { "type": "string" },
+        "priority": { "type": "integer", "description": "1 (low) to 4 (urgent)." },
+        "status": { "type": "string", "enum": ["todo", "in_progress", "done"] },
+        "dueDate": { "type": "string" },
+        "scheduledStartMs": { "type": "integer" },
+        "scheduledEndMs": { "type": "integer" },
+        "estimatedMinutes": { "type": "integer" },
+        "updatedAtMs": { "type": "integer" },
+        "deletedAtMs": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "priority", "status", "estimatedMinutes", "updatedAtMs", "createdAt", "updatedAt"]
+    },
+    "FocusSession": {
+      "title": "FocusSession",
+      "description": "Telemetry record for Pomodoro, deep work, and stopwatch sessions with persisted startedAtMs.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "taskId": { "type": "string" },
+        "habitId": { "type": "string" },
+        "startedAtMs": { "type": "integer" },
+        "endedAtMs": { "type": "integer" },
+        "durationSeconds": { "type": "integer" },
+        "sessionType": { "type": "string", "enum": ["pomodoro", "deep_work", "stopwatch"] },
+        "active": { "type": "boolean" },
+        "updatedAtMs": { "type": "integer" },
+        "deletedAtMs": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "startedAtMs", "durationSeconds", "sessionType", "active", "updatedAtMs", "createdAt", "updatedAt"]
+    },
+    "DailyReview": {
+      "title": "DailyReview",
+      "description": "Daily reflection and mood/energy journal entry keyed by review_YYYY-MM-DD.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "reviewDate": { "type": "string" },
+        "moodScore": { "type": "integer" },
+        "energyScore": { "type": "integer" },
+        "winsText": { "type": "string" },
+        "blockersText": { "type": "string" },
+        "updatedAtMs": { "type": "integer" },
+        "deletedAtMs": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "reviewDate", "moodScore", "energyScore", "winsText", "blockersText", "updatedAtMs", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/goals/{goalId}": {
+      "schema": { "$ref": "#/entities/Goal" },
+      "description": "User-scoped goals collection for delta sync."
+    },
+    "/users/{userId}/milestones/{milestoneId}": {
+      "schema": { "$ref": "#/entities/Milestone" },
+      "description": "User-scoped milestones collection for delta sync."
+    },
+    "/users/{userId}/habits/{habitId}": {
+      "schema": { "$ref": "#/entities/Habit" },
+      "description": "User-scoped polymorphic habits collection for delta sync."
+    },
+    "/users/{userId}/habitLogs/{logId}": {
+      "schema": { "$ref": "#/entities/HabitLog" },
+      "description": "User-scoped daily habit check-in logs for delta sync."
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/Task" },
+      "description": "User-scoped tasks and time-blocks collection for delta sync."
+    },
+    "/users/{userId}/focusSessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/FocusSession" },
+      "description": "User-scoped focus & Pomodoro telemetry sessions for delta sync."
+    },
+    "/users/{userId}/dailyReviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/DailyReview" },
+      "description": "User-scoped daily mood and reflection journal entries for delta sync."
+    }
+  }
+}
